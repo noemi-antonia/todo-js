@@ -5,8 +5,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo</title>
-    <style></style>
+    <style>
+        input[type=checkbox]:checked + label.strikethrough{
+            text-decoration: line-through;
+        }
+    </style>
 </head>
 <body>
-<body>
+
+    <div id="new-task">
+        <button id="add-button">+</button>
+        <input id="input-value" type="text" placeholder="Add a new todo">
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
 </html>
