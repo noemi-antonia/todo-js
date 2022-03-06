@@ -1,6 +1,5 @@
 let addButton = document.getElementById("add-button");
 let taskList = document.getElementById("task-list");
-let numberOfTasks;
 
 addButton.addEventListener('click', createNewTask);
 
@@ -16,66 +15,46 @@ function createNewTask(){
         alert("You must write something!");
 
     } else {
-
+        
         // ----- create elements
         var newTaskElement = document.createElement("div");
         newTaskElement.className = "task";
         taskList.appendChild(newTaskElement);
 
-        var taskIndex = 'task' + numberOfTasks;
-        console.log('new task index: ' + taskIndex)
-
         var newCheckBox = document.createElement('input');
-        newCheckBox.type = 'checkbox';   
-        newCheckBox.id = taskIndex; 
+        newCheckBox.type = 'checkbox'; 
         newTaskElement.appendChild(newCheckBox);
-
-        var newLabel = document. createElement("Label");
-        newLabel. setAttribute("for", newCheckBox.id);
-        newLabel. className = "strikethrough";
-        newLabel. innerHTML = inputValue;
-        newLabel.style = 'display: none;';
-        newTaskElement. appendChild(newLabel);
 
         var newEditableLabel = document.createElement('input');
         newEditableLabel.type = 'text';
         newEditableLabel.value = inputValue;
-        newTaskElement. appendChild(newEditableLabel);
+        newTaskElement.appendChild(newEditableLabel);
         
     }
     
     // ----- clean the input
     document.getElementById("input-value").value = '';
 
-    // ----- synchronize input with label when it is changed
-    newEditableLabel.addEventListener('change', (event) => {
-        newLabel.innerHTML = event.target.value;
-    });
 
     // ----- handle checkbox states
-    newCheckBox.addEventListener('change', () => {
+    newCheckBox.addEventListener('change', (event) => {
+        console.log(event);
         if(newCheckBox.checked){
-            newLabel.style.display = "inline-block";
-            newEditableLabel.style.display = "none";
+            newEditableLabel.readOnly= 'readOnly';
+            newEditableLabel.classList.add("strikethrough");
         }
         else{
-            newLabel.style.display = "none";
-            newEditableLabel.style.display = "inline-block";
+            newEditableLabel.removeAttribute('readOnly');
+            newEditableLabel.classList.remove("strikethrough");
         }
     })
 }
 
 function verifyIfTasklistExist(){
-    if(!taskList){
+    if(!Boolean(taskList)){
         console.log("tasklist doesn't exist yet");
         taskList = document.createElement("div");
         taskList.setAttribute("id", "task-list");
         document.body.appendChild(taskList);
-        numberOfTasks = 0;
     }
-    else{
-        var taskDivs = taskList.getElementsByClassName('task');
-        numberOfTasks = taskDivs.length;
-    }
-    console.log("number of tasks:" + numberOfTasks);
 }
