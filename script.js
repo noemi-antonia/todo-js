@@ -29,6 +29,11 @@ function createNewTask(){
         newEditableLabel.type = 'text';
         newEditableLabel.value = inputValue;
         newTaskElement.appendChild(newEditableLabel);
+
+        var newDeleteButton = document.createElement('img');
+        newDeleteButton.src="bin.png";
+        newDeleteButton.classList.add('delete-btn');
+        newTaskElement.appendChild(newDeleteButton);
         
     }
     
@@ -41,14 +46,20 @@ function createNewTask(){
         console.log(event);
         if(newCheckBox.checked){
             newEditableLabel.readOnly= 'readOnly';
-            newEditableLabel.classList.add("strikethrough");
+            newEditableLabel.classList.add("strikethrough","hideborder");
         }
         else{
             newEditableLabel.removeAttribute('readOnly');
-            newEditableLabel.classList.remove("strikethrough");
+            newEditableLabel.classList.remove("strikethrough","hideborder");
         }
     })
+
+    newDeleteButton.addEventListener('click', (event)=>{
+        console.log(event);
+        event.target.parentElement.remove();
+    });
 }
+
 
 function verifyIfTasklistExist(){
     if(!Boolean(taskList)){

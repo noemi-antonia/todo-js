@@ -1,0 +1,23 @@
+.strikethrough{
+    text-decoration: line-through;
+}
+
+.hideborder:focus{
+    outline: none;
+}
+
+.hideborder{
+    border-color: transparent;
+}
+
+.delete-btn{
+    max-width: 20px;
+    cursor: pointer;
+}
+
+.task{
+    display: flex;
+    column-gap: 5px;
+    align-items: center;
+    margin: 8px 0px;
+}
