@@ -1,117 +1,198 @@
-let todoList = [{title:'Reading', checked:false, id:1, notes:'', priority:'low'}, {title:'Hiking', checked:true, id:2, notes:'', priority:'low'}];
+class Model {
+    constructor(){
+        this.todoList = [
+            {title:'Reading', checked:false, id:1, notes:'', priority:'low'}, 
+            {title:'Hiking', checked:true, id:2, notes:'', priority:'low'},
+            {title:'Learn Javascript', checked:false, id:3, notes:'', priority:'high'},
+        ];
+    }
+    
+    addTodo(todoTitle){
 
+        const todo = {
+            title: todoTitle, 
+            checked: false, 
+            id: this.todoList.length > 0 ? (this.todoList[this.todoList.length - 1].id + 1) : 1,
+            notes: '',
+            priority: 'low'
+        }
 
-window.addEventListener('load', (event) => {
-    let addButton = document.getElementById("add-button");
-    addButton.addEventListener('click', preventEmptyInput);
-    createTodoList();
-});
+        this.todoList.push(todo);
+        console.log(this.todoList);
 
-function preventEmptyInput(){
+        this.whenTodoListChanged(this.todoList);
+    }
 
-    var inputValue = document.getElementById("input-value").value;
+    deleteTodo(todoId){
+        const indexOfTodo = this.todoList.findIndex(element => element.id === todoId );
+        this.todoList.splice( indexOfTodo, 1);
+        console.log(this.todoList);
 
-    if(inputValue === ''){
+        this.whenTodoListChanged(this.todoList);
+    }
 
-        alert("You must write something!");
+    changeCheckedStatus(todoId){
+        const indexOfTodo =  this.todoList.findIndex(element => element.id === todoId );
+        this.todoList[indexOfTodo].checked = this.todoList[indexOfTodo].checked ? false : true;
+        console.log(this.todoList);
 
-    } else {
-        addTodo(inputValue);
+        this.whenTodoListChanged(this.todoList);
+    }
+
+    bindTodoListChanged(callback) {
+        this.whenTodoListChanged = callback;
+    }
+
+}
+
+class View {
+    constructor(){
+
+        this.rootElement = document.getElementById("root"); 
+
+        this.newTodoDiv = this.createElement("div","new-todo");
+
+        this.addButton = this.createElement("button","add-btn");
+        this.addButton.textContent = "+";
+
+        this.input = this.createElement("input");
+        this.input.type = "text";
+        this.input.placeholder = "Add a new todo";
+
+        this.rootElement.appendChild(this.newTodoDiv);
+        this.newTodoDiv.append(this.addButton, this.input);
+
+        this.todoListDiv = this.createElement("div","todo-list");
+        this.rootElement.appendChild(this.todoListDiv);
+    }
+
+    createElement(tag, className){
+        const element = document.createElement(tag);
+
+        if(className) 
+        element.classList.add(className);
+
+        return element;
+    }
+
+    inputIsEmpty(){
+        if(this.input.value === ''){
+    
+            alert("You must write something!");
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    resetInput(){
+        this.input.value = '';
+    }
+
+    displayTodoList(todoList){
+
+        // sterg ce e afisat momentan in divul listei 
+        while (this.todoListDiv.firstChild) {
+            this.todoListDiv.removeChild(this.todoListDiv.firstChild);
+        }
+
+        // daca nu am in array nimic
+        if(todoList.length === 0){
+            const emptyTodoListMessage = this.createElement('p');
+            emptyTodoListMessage.textContent = "Nothing to do!"
+            this.todoListDiv.appendChild(emptyTodoListMessage);
+        } else {
+            todoList.forEach( todo => {
+                const todoDiv = this.createElement("div","task");
+                todoDiv.id= todo.id;
+                this.todoListDiv.appendChild(todoDiv);
+                
+                const checkbox = this.createElement("input");
+                checkbox.type = 'checkbox'; 
+                checkbox.checked = todo.checked;
+
+                const editableLabel = this.createElement("input");
+                editableLabel.type = 'text';
+                editableLabel.value = todo.title;
+
+                const deleteButton = this.createElement('img','delete-btn');
+                deleteButton.src = "bin.png";
+                
+                todoDiv.append(checkbox, editableLabel, deleteButton); 
+
+                if(checkbox.checked){
+                    editableLabel.readOnly= 'readOnly';
+                    editableLabel.classList.add("strikethrough","hideborder");
+                }
+                else{
+                    editableLabel.removeAttribute('readOnly');
+                    editableLabel.classList.remove("strikethrough","hideborder");
+                }
+            })
+        }
+    }
+
+    addTodoEventListener(handler){
+        this.addButton.addEventListener('click', event =>{
+            if(!this.inputIsEmpty()){
+                handler(this.input.value);
+                this.resetInput();
+            }
+        })
+    }
+
+    deleteTodoEventListener(handler){
+        this.todoListDiv.addEventListener('click', event => {
+            if(event.target.className === 'delete-btn') {
+                const id = parseInt(event.target.parentElement.id);
+                handler(id);
+            }
+        })
+    }
+
+    checkboxStatusEventListener(handler){
+        this.todoListDiv.addEventListener('change', event => {
+            if(event.target.type === 'checkbox') {
+                const id = parseInt(event.target.parentElement.id)
+                handler(id);
+            }
+        })
+    }
+
+}
+
+class Controller {
+    constructor(model, view){
+        this.model = model;
+        this.view = view;
+
+        // display initial todos
+        this.whenTodoListChanged(this.model.todoList);
+
+        this.view.addTodoEventListener(this.addTodoHandler);
+        this.view.deleteTodoEventListener(this.deleteTodoHandler);
+        this.view.checkboxStatusEventListener(this.checkedStatusHandler);
+
+        this.model.bindTodoListChanged(this.whenTodoListChanged);
+
+    }
+
+    whenTodoListChanged = (todoList) => {
+        this.view.displayTodoList(todoList);
+    }
+
+    addTodoHandler = (todoTitle) => {
+        this.model.addTodo(todoTitle);
+    }
+
+    deleteTodoHandler = (todoId) => {
+        this.model.deleteTodo(todoId);
+    }
+
+    checkedStatusHandler = (todoId) => {
+        this.model.changeCheckedStatus(todoId);
     }
 }
 
-function createTodoList(){
-
-    if(Boolean(todoList)){
-        // create a div for all of the todos
-        todoListDiv = document.createElement("div");
-        todoListDiv.setAttribute("id", "task-list");
-        document.body.appendChild(todoListDiv);
-
-        // create DOM elements for all the todos from our array
-        todoList.forEach(todo => createDOMelement(todo));
-    }
-}
-
-function addToTodoList(todo){
-    todoList.push(todo);
-    console.log(todoList);
-}
-
-function addTodo(title){
-
-    const todo = {
-        title: title,
-        checked: false,
-        id: Date.now(),
-        notes: '',
-        priority: 'low'
-    }
-
-    // update the array of todos
-    addToTodoList(todo);
-
-    // create DOM element
-    createDOMelement(todo);
-
-    // clean the input
-    document.getElementById("input-value").value = '';
-}
-
-function deleteTodo(id){
-    var indexOfTodo =  todoList.findIndex(element => element.id === id );
-    todoList.splice( indexOfTodo, 1);
-    console.log(todoList)
-}
-
-function createDOMelement(todo){
-
-        var newTodoElement = document.createElement("div");
-        newTodoElement.className = "task";
-        todoListDiv.appendChild(newTodoElement);
-
-        var newCheckBox = document.createElement('input');
-        newCheckBox.type = 'checkbox'; 
-        newTodoElement.appendChild(newCheckBox);
-        newCheckBox.checked = todo.checked;
-
-        var newEditableLabel = document.createElement('input');
-        newEditableLabel.type = 'text';
-        newEditableLabel.value = todo.title;
-        newTodoElement.appendChild(newEditableLabel);
-
-        var newDeleteButton = document.createElement('img');
-        newDeleteButton.src="bin.png";
-        newDeleteButton.classList.add('delete-btn');
-        newTodoElement.appendChild(newDeleteButton);
-
-        handleCheckboxStates(newCheckBox, newEditableLabel);
-
-        newCheckBox.addEventListener('change', ()=>{ changeCheckedStatus(todo.id); handleCheckboxStates(newCheckBox, newEditableLabel);});
-
-        newDeleteButton.addEventListener('click', (event)=>{
-            deleteTodo(todo.id);
-            event.target.parentElement.remove();
-        });
-}
-
-function handleCheckboxStates(checkboxElement, inputElement){
-    if(checkboxElement.checked){
-        inputElement.readOnly= 'readOnly';
-        inputElement.classList.add("strikethrough","hideborder");
-    }
-    else{
-        inputElement.removeAttribute('readOnly');
-        inputElement.classList.remove("strikethrough","hideborder");
-    }
-}
-
-function changeCheckedStatus(id){
-    var indexOfTodo =  todoList.findIndex(element => element.id === id );
-
-    if(todoList[indexOfTodo].checked)
-        todoList[indexOfTodo].checked = false;
-    else
-        todoList[indexOfTodo].checked = true;
-    console.log(todoList);
-}
+const app = new Controller(new Model(), new View());
