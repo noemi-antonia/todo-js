@@ -31,11 +31,35 @@ class Model {
         this.whenTodoListChanged(this.todoList);
     }
 
+    editTodo(todoId, changedTodo){
+        
+        for (const obj of this.todoList) {
+            if (obj.id === todoId) {
+              obj.title = changedTodo;
+              break;
+            }
+        }
+
+        console.log(this.todoList);
+        this.whenTodoListChanged(this.todoList);
+    }
+
     changeCheckedStatus(todoId){
         const indexOfTodo =  this.todoList.findIndex(element => element.id === todoId );
         this.todoList[indexOfTodo].checked = this.todoList[indexOfTodo].checked ? false : true;
         console.log(this.todoList);
 
+        this.whenTodoListChanged(this.todoList);
+    }
+
+    changePriority(todoId, selectedPriority){
+        for (const obj of this.todoList) {
+            if (obj.id === todoId) {
+              obj.priority = selectedPriority;
+              break;
+            }
+        }
+        console.log(this.todoList);
         this.whenTodoListChanged(this.todoList);
     }
 
@@ -118,8 +142,21 @@ class View {
 
                 const deleteButton = this.createElement('img','delete-btn');
                 deleteButton.src = "bin.png";
+
+                const priorityList = this.createElement("select");
+                const priority = ['low', 'medium', 'high'];
+
+                for (var i = 0; i < priority.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = priority[i];
+                    option.text = priority[i];
+                    if(todo.priority==priority[i]){
+                        option.selected = true;
+                    }
+                    priorityList.appendChild(option);
+                }
                 
-                todoDiv.append(checkbox, editableLabel, deleteButton); 
+                todoDiv.append(checkbox, editableLabel, priorityList, deleteButton); 
 
                 if(checkbox.checked){
                     editableLabel.readOnly= 'readOnly';
@@ -160,6 +197,25 @@ class View {
         })
     }
 
+    editTodoEventListener(handler){
+        this.todoListDiv.addEventListener('change', event => {
+            if(event.target.type === 'text') {
+                const id = parseInt(event.target.parentElement.id)
+                handler(id, event.target.value);
+            }
+        })
+    }
+
+    priorityEventListener(handler){
+        this.todoListDiv.addEventListener('change', event => {
+            if(event.target.type === 'select-one') {
+                console.log("select change triggered");
+                const id = parseInt(event.target.parentElement.id);
+                handler(id, event.target.value);
+            }
+        })
+    }
+
 }
 
 class Controller {
@@ -173,6 +229,8 @@ class Controller {
         this.view.addTodoEventListener(this.addTodoHandler);
         this.view.deleteTodoEventListener(this.deleteTodoHandler);
         this.view.checkboxStatusEventListener(this.checkedStatusHandler);
+        this.view.editTodoEventListener(this.editTodoHandler);
+        this.view.priorityEventListener(this.priorityHandler);
 
         this.model.bindTodoListChanged(this.whenTodoListChanged);
 
@@ -188,6 +246,14 @@ class Controller {
 
     deleteTodoHandler = (todoId) => {
         this.model.deleteTodo(todoId);
+    }
+ 
+    editTodoHandler = (todoId, changedTitle) => {
+        this.model.editTodo(todoId,changedTitle);
+    }
+
+    priorityHandler = (todoId, newPriority) => {
+        this.model.changePriority(todoId,newPriority);
     }
 
     checkedStatusHandler = (todoId) => {
