@@ -1,3 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body{
+    margin: 0;
+    padding: 0;
+    background-color: #efefef;
+    font-family: 'Raleway', sans-serif;
+}
+
+#root{
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input{
+    height: 30px;
+}
+
+.task{
+    background-color: white;
+    padding: 22px;
+    border-radius: 5px;
+    position: relative;
+    width: 40vw;
+}
+
+.todo-header{
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+.task .title{
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Raleway', sans-serif;
+}
+
+.task select {
+	appearance: none;
+    padding: 2px 6px;
+    border-radius: 5px 0 5px 0;
+    border-width: 0;
+    position: absolute;
+    top:0;
+    left:0;
+    cursor: pointer;
+}
+
+.task input[type=checkbox]{
+    border-radius: 5px;
+}
+
 .strikethrough{
     text-decoration: line-through;
 }
@@ -11,8 +67,10 @@
 }
 
 .delete-btn{
+    margin-left: auto;
     max-width: 20px;
     cursor: pointer;
+    height: 100%;
 }
 
 .task{

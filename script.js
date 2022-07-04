@@ -116,12 +116,12 @@ class View {
 
     displayTodoList(todoList){
 
-        // sterg ce e afisat momentan in divul listei 
+        // delete what is currently displayed in the list
         while (this.todoListDiv.firstChild) {
             this.todoListDiv.removeChild(this.todoListDiv.firstChild);
         }
 
-        // daca nu am in array nimic
+        // if the list is empty
         if(todoList.length === 0){
             const emptyTodoListMessage = this.createElement('p');
             emptyTodoListMessage.textContent = "Nothing to do!"
@@ -139,24 +139,34 @@ class View {
                 const editableLabel = this.createElement("input");
                 editableLabel.type = 'text';
                 editableLabel.value = todo.title;
+                editableLabel.classList.add('title');
 
                 const deleteButton = this.createElement('img','delete-btn');
                 deleteButton.src = "bin.png";
 
                 const priorityList = this.createElement("select");
-                const priority = ['low', 'medium', 'high'];
+                const priority = new Map();
 
-                for (var i = 0; i < priority.length; i++) {
+                priority.set('low', '#fff1cc');
+                priority.set('medium', '#ffd8b3');
+                priority.set('high','#ffb3b3');
+
+                for (let [value, color] of priority) {
                     var option = document.createElement("option");
-                    option.value = priority[i];
-                    option.text = priority[i];
-                    if(todo.priority==priority[i]){
+                    option.value = value;
+                    option.text = value;
+
+                    if(todo.priority==value){
                         option.selected = true;
+                        priorityList.style.backgroundColor=color;
                     }
+
                     priorityList.appendChild(option);
                 }
                 
-                todoDiv.append(checkbox, editableLabel, priorityList, deleteButton); 
+                const todoHeader = this.createElement("div", "todo-header");
+                todoHeader.append(checkbox, editableLabel, deleteButton);
+                todoDiv.append(todoHeader, priorityList); 
 
                 if(checkbox.checked){
                     editableLabel.readOnly= 'readOnly';
@@ -182,7 +192,7 @@ class View {
     deleteTodoEventListener(handler){
         this.todoListDiv.addEventListener('click', event => {
             if(event.target.className === 'delete-btn') {
-                const id = parseInt(event.target.parentElement.id);
+                const id = parseInt(event.target.parentElement.parentElement.id);
                 handler(id);
             }
         })
@@ -191,7 +201,7 @@ class View {
     checkboxStatusEventListener(handler){
         this.todoListDiv.addEventListener('change', event => {
             if(event.target.type === 'checkbox') {
-                const id = parseInt(event.target.parentElement.id)
+                const id = parseInt(event.target.parentElement.parentElement.id)
                 handler(id);
             }
         })
@@ -200,7 +210,7 @@ class View {
     editTodoEventListener(handler){
         this.todoListDiv.addEventListener('change', event => {
             if(event.target.type === 'text') {
-                const id = parseInt(event.target.parentElement.id)
+                const id = parseInt(event.target.parentElement.parentElement.id)
                 handler(id, event.target.value);
             }
         })
