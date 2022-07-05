@@ -1,26 +1,33 @@
 class Model {
     constructor(){
         this.todoList = [
-            {title:'Reading', checked:false, id:1, notes:'', priority:'low'}, 
-            {title:'Hiking', checked:true, id:2, notes:'', priority:'low'},
-            {title:'Learn Javascript', checked:false, id:3, notes:'', priority:'high'},
+            {title:'Learn Javascript', checked:false, id:1, notes:'', priority:'high'},
+            {title:'Reading', checked:false, id:2, notes:'', priority:'low'}, 
+            {title:'Hiking', checked:true, id:3, notes:'', priority:'low'},
         ];
     }
     
     addTodo(todoTitle){
 
+        const ids = this.todoList.map(object => {
+            return object.id;
+        });
+
+        const maxId = Math.max(...ids);
+
         const todo = {
             title: todoTitle, 
             checked: false, 
-            id: this.todoList.length > 0 ? (this.todoList[this.todoList.length - 1].id + 1) : 1,
+            id: this.todoList.length > 0 ? maxId + 1 : 1,
             notes: '',
             priority: 'low'
         }
 
         this.todoList.push(todo);
-        console.log(this.todoList);
 
         this.whenTodoListChanged(this.todoList);
+
+        console.log(this.todoList);
     }
 
     deleteTodo(todoId){
@@ -59,8 +66,24 @@ class Model {
               break;
             }
         }
-        console.log(this.todoList);
+        
+        this.sortByPriority();
         this.whenTodoListChanged(this.todoList);
+        console.log(this.todoList);
+    }
+
+    sortByPriority(){
+        this.todoList.sort(function (a, b) {
+            console.log(a, b);
+            if(a.priority === b.priority)
+                return 0;
+            else if(a.priority==='high' || (a.priority==='medium' && b.priority==='low'))
+                return -1;
+            else if((a.priority==='low' && (b.priority==='medium' || b.priority==='high'))
+                    || (a.priority==='medium' && b.priority=='high')
+            )
+                return 1;
+        });
     }
 
     bindTodoListChanged(callback) {
