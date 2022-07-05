@@ -1,10 +1,6 @@
 class Model {
     constructor(){
-        this.todoList = [
-            {title:'Learn Javascript', checked:false, id:1, notes:'', priority:'high'},
-            {title:'Reading', checked:false, id:2, notes:'', priority:'low'}, 
-            {title:'Hiking', checked:true, id:3, notes:'', priority:'low'},
-        ];
+        this.todoList = JSON.parse(localStorage.getItem('todoList')) || [] ;
     }
     
     addTodo(todoTitle){
@@ -25,17 +21,14 @@ class Model {
 
         this.todoList.push(todo);
 
-        this.whenTodoListChanged(this.todoList);
-
-        console.log(this.todoList);
+        this._updateLocalStorage(this.todoList);
     }
 
     deleteTodo(todoId){
         const indexOfTodo = this.todoList.findIndex(element => element.id === todoId );
         this.todoList.splice( indexOfTodo, 1);
-        console.log(this.todoList);
 
-        this.whenTodoListChanged(this.todoList);
+        this._updateLocalStorage(this.todoList);
     }
 
     editTodo(todoId, changedTodo){
@@ -47,16 +40,14 @@ class Model {
             }
         }
 
-        console.log(this.todoList);
-        this.whenTodoListChanged(this.todoList);
+        this._updateLocalStorage(this.todoList);
     }
 
     changeCheckedStatus(todoId){
         const indexOfTodo =  this.todoList.findIndex(element => element.id === todoId );
         this.todoList[indexOfTodo].checked = this.todoList[indexOfTodo].checked ? false : true;
-        console.log(this.todoList);
 
-        this.whenTodoListChanged(this.todoList);
+        this._updateLocalStorage(this.todoList);
     }
 
     changePriority(todoId, selectedPriority){
@@ -68,13 +59,11 @@ class Model {
         }
         
         this.sortByPriority();
-        this.whenTodoListChanged(this.todoList);
-        console.log(this.todoList);
+        this._updateLocalStorage(this.todoList);
     }
 
     sortByPriority(){
         this.todoList.sort(function (a, b) {
-            console.log(a, b);
             if(a.priority === b.priority)
                 return 0;
             else if(a.priority==='high' || (a.priority==='medium' && b.priority==='low'))
@@ -84,6 +73,11 @@ class Model {
             )
                 return 1;
         });
+    }
+
+    _updateLocalStorage(todos) {
+        this.whenTodoListChanged(todos)
+        localStorage.setItem('todoList', JSON.stringify(todos))
     }
 
     bindTodoListChanged(callback) {
